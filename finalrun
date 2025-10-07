@@ -55,13 +55,11 @@ bachelorettes = [
     Bachelorette("Lisa", "Native American", 55, "lawyer", "blonde", "bouffant", "blue", "mean")
 ]
 
-# Game setup
 def choose_match(bachelorette):
-    """Randomly selects a compatible bachelor based on similar traits (e.g. personality)"""
     matches = [b for b in bachelors if b.personality == bachelorette.personality]
     return random.choice(matches) if matches else random.choice(bachelors)
 
-def ask_question(player_name, mystery_bachelor):
+def ask_question(player_name, mystery_bachelor, scores):
     print(f"\n{player_name}, it's your turn to ask a question.")
     print("What would you like to ask about?")
     print("Options: age, career, hair_color, hair_style, eye_color, personality")
@@ -71,17 +69,17 @@ def ask_question(player_name, mystery_bachelor):
 
     actual_value = getattr(mystery_bachelor, question, None)
     if actual_value is None:
-        print("Invalid trait. Try again next time.")
-        return False
+        print("Invalid trait. No points awarded.")
+        return
     elif str(actual_value).lower() == guess:
-        print("✅ Yes! That matches.")
-        return True
+        print("✅ Correct match!")
+        scores[player_name] += 1
+        print(f"+1 point to {player_name}")
     else:
         print(f"❌ Nope. The actual {question} is {actual_value}.")
-        return False
 
-def make_guess(player_name, mystery_bachelor):
-    print(f"\n{player_name}, would you like to guess who the bachelor is? (yes/no)")
+def make_guess(player_name, mystery_bachelor, scores):
+    print(f"\n{player_name}, would you like to guess the bachelor? (yes/no)")
     if input("> ").lower() != "yes":
         return False
 
@@ -96,17 +94,26 @@ def make_guess(player_name, mystery_bachelor):
         return False
 
     if chosen_bachelor.name == mystery_bachelor.name:
-        print(f"\n🎉 Correct! {player_name} wins! The perfect match was {chosen_bachelor.name}.")
+        print(f"\n🎉 Correct! {player_name} wins the round!")
+        scores[player_name] += 5
+        print(f"+5 points to {player_name}")
         return True
     else:
         print(f"Wrong guess. {chosen_bachelor.name} is not the perfect match.")
+        scores[player_name] -= 1
+        print(f"-1 point to {player_name}")
         return False
 
-# Main Game Loop
+def display_scores(scores):
+    print("\n🏆 Current Scores:")
+    for player, score in scores.items():
+        print(f"{player}: {score} points")
+
 def play_game():
     print("💘 Welcome to THE PERFECT MATCH 💘")
     player1 = input("Enter Player 1 name: ")
     player2 = input("Enter Player 2 name: ")
+    scores = {player1: 0, player2: 0}
 
     bachelorette = random.choice(bachelorettes)
     perfect_match = choose_match(bachelorette)
@@ -116,11 +123,15 @@ def play_game():
 
     current_player = player1
     while True:
-        if ask_question(current_player, perfect_match):
-            if make_guess(current_player, perfect_match):
-                break
+        ask_question(current_player, perfect_match, scores)
+        if make_guess(current_player, perfect_match, scores):
+            break
+        display_scores(scores)
         current_player = player2 if current_player == player1 else player1
 
-# Run the game
+    print("\n🎉 Final Scores:")
+    display_scores(scores)
+    print("Thanks for playing THE PERFECT MATCH 💖")
+
 if __name__ == "__main__":
     play_game()

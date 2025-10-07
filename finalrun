@@ -1,0 +1,126 @@
+import random
+
+class Bachelor:
+    def __init__(self, name, ethnicity, age, career, hair_color, hair_style, eye_color, personality):
+        self.name = name
+        self.ethnicity = ethnicity
+        self.age = age
+        self.career = career
+        self.hair_color = hair_color
+        self.hair_style = hair_style
+        self.eye_color = eye_color
+        self.personality = personality.lower()
+
+    def __str__(self):
+        return f"{self.name}, {self.age} y/o {self.ethnicity} {self.career}, {self.hair_color} hair ({self.hair_style}), {self.eye_color} eyes, personality: {self.personality}"
+
+class Bachelorette:
+    def __init__(self, name, ethnicity, age, career, hair_color, hair_style, eye_color, personality):
+        self.name = name
+        self.ethnicity = ethnicity
+        self.age = age
+        self.career = career
+        self.hair_color = hair_color
+        self.hair_style = hair_style
+        self.eye_color = eye_color
+        self.personality = personality.lower()
+
+    def __str__(self):
+        return f"{self.name}, {self.age} y/o {self.ethnicity} {self.career}, personality: {self.personality}"
+
+# Create bachelors
+bachelors = [
+    Bachelor("Anthony", "Hispanic", 48, "salesman", "black", "bald", "brown", "funny"),
+    Bachelor("Shawn", "Black", 45, "architect", "black", "fade", "black", "witty"),
+    Bachelor("Timothy", "Caucasian", 51, "unemployed", "blond", "faux hawk", "green", "flirty"),
+    Bachelor("Jason", "Asian", 41, "IT tech", "black", "bowl cut", "black", "nerdy"),
+    Bachelor("Richard", "Italian", 56, "stock trader", "brown", "pompadour", "brown", "cocky"),
+    Bachelor("Steven", "Jewish", 38, "teacher", "black", "french crop", "green", "outgoing"),
+    Bachelor("Jordan", "Biracial", 43, "content creator", "black", "mohawk", "hazel", "quirky"),
+    Bachelor("James", "Scottish", 40, "physical therapist", "red", "comb over", "blue", "friendly")
+]
+
+# Create bachelorettes
+bachelorettes = [
+    Bachelorette("Tiffany", "African American", 41, "dancer", "black", "lace front", "black", "pompus"),
+    Bachelorette("Georgia", "Biracial", 37, "secretary", "brown", "braids", "brown", "sweet"),
+    Bachelorette("Susan", "Caucasian", 49, "curriculum specialist", "blonde", "pixie cut", "green", "nervous"),
+    Bachelorette("Jasmine", "Egyptian", 28, "actress", "black", "curtain bangs", "black", "silly"),
+    Bachelorette("Sarai", "Hispanic", 45, "data analyst", "brown", "bob", "brown", "shy"),
+    Bachelorette("Maggie", "Caucasian", 25, "yoga instructor", "blonde", "feathered bang", "hazel", "hyper"),
+    Bachelorette("Terri", "African American", 42, "interior designer", "black", "dreadlocks", "brown", "outgoing"),
+    Bachelorette("Kaitlyn", "Asian", 35, "chef", "brown", "layered cut", "green", "bubbly"),
+    Bachelorette("Francesca", "Italian", 50, "model", "brown", "beehive", "brown", "cocky"),
+    Bachelorette("Tamara", "Ethiopian", 37, "unemployed", "black", "blunt cut", "brown", "flirty"),
+    Bachelorette("Lisa", "Native American", 55, "lawyer", "blonde", "bouffant", "blue", "mean")
+]
+
+# Game setup
+def choose_match(bachelorette):
+    """Randomly selects a compatible bachelor based on similar traits (e.g. personality)"""
+    matches = [b for b in bachelors if b.personality == bachelorette.personality]
+    return random.choice(matches) if matches else random.choice(bachelors)
+
+def ask_question(player_name, mystery_bachelor):
+    print(f"\n{player_name}, it's your turn to ask a question.")
+    print("What would you like to ask about?")
+    print("Options: age, career, hair_color, hair_style, eye_color, personality")
+
+    question = input("Enter trait: ").strip().lower()
+    guess = input(f"What is your guess for {question}? ").strip().lower()
+
+    actual_value = getattr(mystery_bachelor, question, None)
+    if actual_value is None:
+        print("Invalid trait. Try again next time.")
+        return False
+    elif str(actual_value).lower() == guess:
+        print("✅ Yes! That matches.")
+        return True
+    else:
+        print(f"❌ Nope. The actual {question} is {actual_value}.")
+        return False
+
+def make_guess(player_name, mystery_bachelor):
+    print(f"\n{player_name}, would you like to guess who the bachelor is? (yes/no)")
+    if input("> ").lower() != "yes":
+        return False
+
+    print("Here are the bachelors:")
+    for i, b in enumerate(bachelors):
+        print(f"{i+1}. {b.name}")
+    try:
+        choice = int(input("Enter number of bachelor: "))
+        chosen_bachelor = bachelors[choice - 1]
+    except (ValueError, IndexError):
+        print("Invalid choice.")
+        return False
+
+    if chosen_bachelor.name == mystery_bachelor.name:
+        print(f"\n🎉 Correct! {player_name} wins! The perfect match was {chosen_bachelor.name}.")
+        return True
+    else:
+        print(f"Wrong guess. {chosen_bachelor.name} is not the perfect match.")
+        return False
+
+# Main Game Loop
+def play_game():
+    print("💘 Welcome to THE PERFECT MATCH 💘")
+    player1 = input("Enter Player 1 name: ")
+    player2 = input("Enter Player 2 name: ")
+
+    bachelorette = random.choice(bachelorettes)
+    perfect_match = choose_match(bachelorette)
+
+    print(f"\nToday's bachelorette is:\n👩 {bachelorette}")
+    print("\nFind her perfect bachelor match!\n")
+
+    current_player = player1
+    while True:
+        if ask_question(current_player, perfect_match):
+            if make_guess(current_player, perfect_match):
+                break
+        current_player = player2 if current_player == player1 else player1
+
+# Run the game
+if __name__ == "__main__":
+    play_game()
